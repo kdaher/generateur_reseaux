@@ -1,0 +1,483 @@
+#include <cstdlib>
+#include <iostream>
+#include <math.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+
+ 
+//using namespace std;
+#define INFINITY 999
+
+using namespace std;
+ 
+class Dijkstra{
+    public:
+           
+        int adj[10][10];
+        int adjMatrix[10][10];
+        int predecessor[10],distance[10];
+        bool mark[10]; //keep track of visited node
+        int source;
+        int numOfVertices;
+        int n;
+        int dl[10][10]; // distance entre 2 noeuds;
+        bool est_connexe;
+        int target;
+        int source1;
+        int chemin[10][10];
+        //est_connexe=true;
+        int x[10],y[10];
+        int ail[10][10];
+        int path[10];
+        bool taboo[10];
+        //int ailn[10][60];
+       // int origineLink[30],destLink[30];
+        
+    public:
+    /*
+    * Function read() reads No of vertices, Adjacency Matrix and source
+    * Matrix from the user. The number of vertices must be greather than
+    * zero, all members of Adjacency Matrix must be postive as distances
+    * are always positive. The source vertex must also be positive from 0
+    * to noOfVertices - 1
+ 
+    */
+    
+        void read();
+        void remplisserail_et_chemin();
+    /*
+    * Function initialize initializes all the data members at the begining of
+    * the execution. The distance between source to source is zero and all other
+    * distances between source and vertices are infinity. The mark is initialized
+    * to false and predecessor is initialized to -1
+    */
+ 
+        void initialize();
+        void comparerchemins();
+    /*
+    * Function getClosestUnmarkedNode returns the node which is nearest from the
+    * Predecessor marked node. If the node is already marked as visited, then it search
+    * for another node.
+    */
+ 
+        int getClosestUnmarkedNode();
+    /*
+    * Function calculateDistance calculates the minimum distances from the source node to
+    * Other node.
+    */
+ 
+        void calculateDistance();
+        void ecrire();
+    /*
+    * Function output prints the results
+    */
+        void output();
+        void printPath(int);
+        int calculerDistance(int,int,int,int);
+        void generer_coordonnees();
+        void estConnexe(bool);
+        void testerdistance();
+        bool testerconnexe();
+        void dessinerMatrice();
+        void toutleschemins(int);
+        void explore(int,int);
+        void forigineLink();
+        void fdestLink();
+};
+
+
+void Dijkstra::forigineLink(){
+     int k=0;
+     int l=0;
+     int origineLink[60];
+     int destLink[60];
+     for(int i=0;i<10;i++){
+                       for(int j=0;j<10;j++){
+                                         if(ail[i][j]==1){
+                                          origineLink[k]=i;
+                                          destLink[k]=j;
+                                          cout<<"origine du link "<<k<<" "<<origineLink[k]<<endl;
+                                          cout<<"dest du Link"<<k<<" "<<destLink[k]<<endl;
+                                          k++;
+                                                          }                       
+                       
+                                           }
+                         }
+    
+      int ailn[10][k]; 
+      for(int i=0;i<10;i++){
+              for(int j=0;j<k;j++){
+                      ailn[i][j]=0;
+                      }
+                      }
+                         
+      for(int j=0;j<k;j++){
+                      ailn[origineLink[j]][j]=1;
+                      ailn[destLink[j]][j]=-1;
+                      }
+      for(int j=0;j<l;j++){
+                      } 
+      for(int i=0;i<10;i++){
+              for(int j=0;j<k;j++){
+                      cout<<ailn[i][j]<<" ";
+                      }
+                      cout<<endl;
+                          }       
+      ofstream fichier1("C:/Users/User/Desktop/omnet++/omnet+mixim/omnetpp-4.6/samples/projetco/simulations/link_number.txt", ios::in | ios::trunc);
+                  if(fichier1){
+                              fichier1<<k;
+                              fichier1.close();
+                              }    
+      ofstream fichier("C:/Users/User/Desktop/omnet++/omnet+mixim/omnetpp-4.6/samples/projetco/simulations/ail.txt", ios::in | ios::trunc);                
+                if(fichier){
+        
+      for(int i=0;i<10;i++){
+              for(int j=0;j<k;j++){
+                      fichier<<ailn[i][j]<<" ";
+                                   }
+                           }
+                                         
+          fichier.close();                      
+          }
+                          }
+                       
+                       
+                       
+///////////////////////////////////////////                   
+
+////////////fonction destLink////////////////
+////////////////////////////////////////////                
+/*void Dijkstra::fdestLink(){
+     
+     int k=0;
+     int destLink[60];
+     for(int i=0;i<10;i++){
+                       for(int j=0;j<10;j++){
+                                         if(ail[i][j]==-1){
+                                          destLink[k]=i;
+                                          cout<<"destination du link "<<k<<" "<<destLink[k]<<endl;
+                                          k++;
+                                                          }                       
+                       
+                                             }
+                          }
+     
+     for(int j=0;j<k;k++){
+                      ailn[destLink[k]][k]=-1;}
+                                        
+}*/
+      
+void Dijkstra::generer_coordonnees(){
+      
+           for(int i=0;i<10;i++){
+                    x[i]=rand()%50;
+                    y[i]=rand()%50;
+                   }
+          /* for(int j=0;j<10;j++){
+                   x[j]=rand()%50;
+                   y[j]=rand()%50;
+                   }*/
+           for(int i=0;i<10;i++){
+                   for(int j=0;j<10;j++){
+                           if(i==j){dl[i][j]=0;}
+                           dl[i][j]=calculerDistance(x[i],y[i],x[j],y[j]);
+                           dl[j][i]=dl[i][j];
+                           }
+                   }
+           }
+ int Dijkstra::calculerDistance(int x1,int y1,int x2,int y2){
+           int dis;
+           dis=(int)sqrt(pow((x1-x2),2)+pow((y1-y2),2));
+           return dis;
+           }
+ void Dijkstra::testerdistance(){
+      for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      adj[i][j]=dl[i][j];}}
+      for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      if(dl[i][j]>30){
+                                      adj[i][j]=999;
+                                      //chemin[i][j]=0;
+                                      }
+                      //else{chemin[i][j]=-1;}
+                      }
+      }
+      }
+      
+void Dijkstra::dessinerMatrice(){
+    
+     for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      cout<<chemin[i][j];
+                      }
+              }
+             }
+
+void Dijkstra::read(){
+    numOfVertices=10;
+    while(numOfVertices <= 0) {
+        cout<<"Enter the number of vertices of the graph(should be > 0)\n";
+        cin>>numOfVertices;
+    }
+    for(int i=0;i<numOfVertices;i++) {
+        for(int j=0;j<numOfVertices;j++) {
+            adjMatrix[i][j]=adj[i][j];
+        }
+    }
+    source=9;
+     
+}
+//////////////////////////////////////////////
+//////////////tout les chemins/////////////// 
+////////////////////////////////////////////
+//source1=0;
+//target=9;
+ void Dijkstra::explore(int position, int depth) {
+      int i;
+	path[depth]=position;
+	// on est sur le sommet d'arrivé -> fini
+	if (position==target) { 
+		// affiche la solution
+		for( i=0;i<=depth;i++ ) {
+             cout<<path[i];
+             
+           //  cout<<ail[path[i-1]][path[i]];
+              //a=path[i];
+              //b=path[i+1];
+        }
+        
+        //ail[path[i]][path[i+1]]=1;}
+		cout<<"\n";
+		
+	
+		return;
+	}
+ 
+	// sinon...
+    else{
+	taboo[position]=true; // on pose un caillou
+ 
+	// on explore les chemins restants
+	for(  i=0;i<10;i++) {
+		                if ((adjMatrix[position][i]==999 ||adjMatrix[position][i]==0)|| taboo[i]==true) continue;
+		                explore(i,depth+1);
+		                ail[path[depth]][path[depth+1]]=1;
+		                //s=s+dl[path[depth]][path[depth+1]];
+	}
+ 
+	taboo[position]=false; // on retire le caillou
+}}
+///////////////////////////////////////////
+//////////////////////////////////////////
+//////////////////////////////////////////
+
+
+
+/////////////////////remplisser ail et chemin avec 0///////////////
+/////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+void Dijkstra::remplisserail_et_chemin(){
+                for(  int i=0;i<10;i++){
+                      for( int j=0;j<10;j++){
+                            ail[i][j]=0;
+                            chemin[i][j]=0;
+                                          }
+                                   }
+                              }
+///////////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//////////////////////////////////////////
+void Dijkstra::initialize(){
+    for(int i=0;i<numOfVertices;i++) {
+        mark[i] = false;
+        predecessor[i] = -1;
+        distance[i] = INFINITY;
+    }
+    distance[source]= 0;
+}
+ 
+ 
+int Dijkstra::getClosestUnmarkedNode(){
+    int minDistance = INFINITY;
+    int closestUnmarkedNode;
+    for(int i=0;i<numOfVertices;i++) {
+        if((!mark[i]) && ( minDistance >= distance[i])) {
+            minDistance = distance[i];
+            closestUnmarkedNode = i;
+        }
+    }
+    return closestUnmarkedNode;
+}
+ 
+ 
+void Dijkstra::calculateDistance(){
+    initialize();
+    int minDistance = INFINITY;
+    int closestUnmarkedNode;
+    int count = 0;
+    while(count < numOfVertices) {
+        closestUnmarkedNode = getClosestUnmarkedNode();
+        mark[closestUnmarkedNode] = true;
+        for(int i=0;i<numOfVertices;i++) {
+            if((!mark[i]) && (adjMatrix[closestUnmarkedNode][i]>0) ) {
+                if(distance[i] > distance[closestUnmarkedNode]+adjMatrix[closestUnmarkedNode][i]) {
+                    distance[i] = distance[closestUnmarkedNode]+adjMatrix[closestUnmarkedNode][i];
+                    predecessor[i] = closestUnmarkedNode;
+                }
+            }
+        }
+        count++;
+    }
+}
+ 
+ void Dijkstra::printPath(int node){ bool a=false;
+         //est_connexe=true;
+        if(node == source)
+            cout<<(char)(node + 97)<<"..";
+        else if(predecessor[node] == -1){
+                                         for(int i=0;i<10;i++){
+                                                 for(int j=0;j<10;j++){
+                                                         chemin[i][j]=0;
+                                                                       }
+                                                               }
+            //chemin[node][predecessor[node]]=0;
+            est_connexe=false;
+          a=true;
+            cout<<"No path from source "<<(char)(node + 97)<<endl;
+           
+                                         }
+        else { 
+        if (est_connexe!=false)  {
+                                 if(a==false) chemin[node][predecessor[node]]=1;
+                                 else{
+                                      for(int i=0;i<10;i++){
+                                              for(int j=0;j<10;j++){
+                                                      chemin[i][j]=0;
+                                                                    }
+                                                            }
+                                      }
+                                 }        
+              //else chemin[node][predecessor[node]]=1;
+              //remplir la matrice chemin par les chemins les plus court
+              printPath(predecessor[node]);
+              // cout<<(char) (node + 97)<<"..";
+              cout<<node<<"..";
+              //cout<< chemin[predecessor[node]][node];
+              }
+}
+
+bool Dijkstra::testerconnexe(){
+     
+     if(est_connexe==false){est_connexe=true;
+                            
+                            return false;  
+                           
+                           }
+     else{return true;
+                      }
+                              }
+
+void Dijkstra::output(){
+    for(int i=0;i<numOfVertices;i++) {
+        if(i == source)
+           // cout<<(char)(source + 97)<<".."<<source;
+            cout<<source<<".."<<source;
+        else{
+            printPath(i);
+            }
+            
+        cout<<"->"<<distance[i]<<endl;
+        
+    }
+}
+////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+void Dijkstra::comparerchemins(){
+      for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      if(chemin[i][j]!=1){       
+                                 if(ail[i][j]==1 && ail[j][i]==1){
+                                                    
+                                                    int couti=adjMatrix[i][j]+distance[j];
+                                                    int coutj=adjMatrix[i][j]+distance[i];
+                                                        if(couti<coutj){
+                                                                        ail[i][j]=1;
+                                                                        ail[j][i]=0;
+                                                                        }
+                                                        else{ail[i][j]=0;
+                                                                         ail[j][i]=1;
+                                                                         }                                 
+                                                                         }
+                                      }
+                             }                     
+                    }
+      for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      if(ail[i][j]==1) ail[j][i]=-1;}}  }
+///////////////////////////////////////////////////
+/////////////////////////////////////////////////
+void Dijkstra::ecrire(){
+      ofstream fichier("C:/Users/User/Desktop/omnet++/omnet+mixim/omnetpp-4.6/samples/projetco/simulations/dl.txt", ios::in | ios::trunc); 
+      ofstream fichier1("C:/Users/User/Desktop/omnet++/omnet+mixim/omnetpp-4.6/samples/projetco/simulations/ail.txt", ios::in | ios::trunc); // ouverture en écriture avec effacement du fichier ouvert
+      ofstream exp("C:/Users/User/Desktop/omnet++/omnet+mixim/omnetpp-4.6/samples/projetco/simulations/exp.txt", ios::in | ios::trunc);
+        if(fichier)
+        {
+                for(int i=0;i<10;i++){
+              for(int j=0;j<10;j++){
+                      
+                      fichier<<dl[i][j]<<" ";
+              }}
+ 
+                fichier.close();
+        }
+        else
+                cerr << "Impossible d'ouvrir le fichier !" << endl;
+                
+                
+        if(exp){
+                
+                     exp<<"[";
+                     for(int i=0;i<10;i++){
+                             for(int j=0;j<10;j++){
+                                   if(dl[i][j]<30 && i!=j){
+                                        exp<<"("<<i<<","<<j<<","<<dl[i][j]<<"),";
+                                        }
+                                     }
+                                     }
+                   
+                     exp<<"]";
+                exp.close();
+        }
+        else
+                {cerr << "Impossible d'ouvrir le fichier !" << endl;}
+                }
+ //////////////////////////////////////////////////
+ /////////////////////////////////////////////////
+ 
+int main(){
+    srand(time(NULL));
+    Dijkstra G;
+    G.target=9;
+    G.remplisserail_et_chemin();
+    while(G.testerconnexe()==false){
+                                    G.generer_coordonnees();
+                                    G.testerdistance();
+                                    G.read();
+                                    G.calculateDistance();
+                                    G.output();
+                                    }
+    
+   
+    for(int i=0;i<10;i++){//affiche tous les chemins possible ;
+            G.explore(i,0);
+          
+                          }
+            G.comparerchemins();
+ 
+    G.ecrire();
+    G.forigineLink();
+    system("PAUSE");
+    return EXIT_SUCCESS;
+}
