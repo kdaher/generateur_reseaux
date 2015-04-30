@@ -1,0 +1,3 @@
+The network code generator is coded in C ++ in the DEV C ++ environment.
+when starting the program, it begins generating a connected network of n nodes under the conditions specified in the algorithm.
+Each time we run the program, it generates a random network that differs from other precedents, and each time, it saves the matrix of links between nodes (ail) and the number of links into files for use after in OMNeT ++ 
